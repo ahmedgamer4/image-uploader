@@ -1,57 +1,54 @@
 import express from 'express'
-import { ImageModel } from '../models/image.js'
-import path from 'path'
-import multer from 'multer'
 import https from 'https'
-import { cloudinary, storage } from '../utils/cloudnary.js'
+import { cloudinary, upload } from '../utils/cloudnary.js'
 
 export const imageRouter = express.Router()
-const upload = multer({ storage })
 
 const urlToBuffer = async (url: string): Promise<Buffer> => {
   return new Promise((resolve, reject) => {
     const data: Uint8Array[] = []
 
-    https.get(url, (res) => {
-      res
+    https.get(url, (response) => {
+      response
         .on('data', (chunk: Uint8Array) => {
           data.push(chunk)
         })
         .on('end', () => {
           resolve(Buffer.concat(data))
         })
-        .on('error', (err) => {
-          reject(err)
+        .on('error', (error) => {
+          reject(error)
         })
     })
   })
 }
 
-imageRouter.get('/:filename', async (req, res) => {
-  try {
-    const imageBuffer = await urlToBuffer(
-      cloudinary.url(`images/${req.params.filename}.jpg`, {
-        secure: true,
-      })
-    )
-    res.writeHead(200, { 'Content-Type':'image/jpg' })
-    res.write(imageBuffer)
-    res.end()
-  } catch (err) {
-    res.status(500).send(err)
+imageRouter.get(
+  '/uploads/:filename',
+  async (req: express.Request, res: express.Response) => {
+    try {
+      const imageBuffer: Buffer = await urlToBuffer(
+        cloudinary.url(`images/${req.params.filename}.jpg`, {
+          secure: true,
+        })
+      )
+      res.writeHead(200, { 'Content-Type': 'image/jpg' })
+      res.write(imageBuffer)
+      res.end()
+    } catch (err) {
+      res.status(500).send(err)
+    }
   }
-})
+)
 
 imageRouter.post('/uploads', upload.single('image'), async (req, res) => {
   try {
-    if (req.file) {
-      console.log(JSON.stringify(req.file))
-      const imgLink = path.join('api', 'images', req.params.filename)
+    const result = await cloudinary.uploader.upload(req.file!.path)
 
-      res.status(201).send(imgLink)
-    } else {
-      res.status(400)
-    }
+    res.status(201).send({
+      imgUrl: result.secure_url,
+      publicId: result.public_id,
+    })
   } catch (err) {
     res.status(500).send(`POST ${err}`)
   }

@@ -1,9 +1,15 @@
 import axios from 'axios';
 import React, { useState } from 'react'
 import bgImage from '/assets/image.svg'
+import { serverOrigin } from '../main';
+
+type ImageLink = {
+    imgUrl: string;
+    publicId: string;
+}
 
 type DropBoxProps = {
-  setImageUrl: React.Dispatch<React.SetStateAction<string>>;
+  setImageUrl: React.Dispatch<React.SetStateAction<ImageLink>>;
   setUploading: React.Dispatch<React.SetStateAction<boolean>>;
 }
 
@@ -11,13 +17,14 @@ function DropBox({ setImageUrl, setUploading }: DropBoxProps): JSX.Element {
   const [dragActive, setDragActive] = useState(false)
 
   const uploadImage = async (image: File) => {
-    const baseUrl = '/api/images/uploads'
+    const baseUrl = serverOrigin + '/api/images/uploads'
 
     const formData = new FormData()
-    formData.append('file', image)
+    formData.append('image', image)
     setUploading(true)
 
     const res = await axios({
+      method: 'POST',
       url: baseUrl,
       data: formData
     })
@@ -68,7 +75,7 @@ function DropBox({ setImageUrl, setUploading }: DropBoxProps): JSX.Element {
         accept='image/*'
         className='hidden'
         id='input-file-field'
-        name='input-file-field'
+        name='image'
         onChange={handleChange}
       />
       <div className='flex flex-col justify-center items-center gap-4 border-2 py-12 border-dashed

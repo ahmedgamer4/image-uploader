@@ -1,8 +1,8 @@
 import { v2 as cloudinaryV2 } from 'cloudinary'
-import { CloudinaryStorage } from 'multer-storage-cloudinary'
+import multer from 'multer'
 import config from './endpoints.config.js'
+import path from 'path'
 
-// Configuration 
 cloudinaryV2.config({
   cloud_name: config.cloudName,
   api_key: config.apiKey,
@@ -11,12 +11,14 @@ cloudinaryV2.config({
 
 export const cloudinary = cloudinaryV2
 
-export const storage = new CloudinaryStorage({
-  cloudinary,
-  params: async (req: Request, file: File) => {
-    return {
-      folder: 'images',
-      allowedFormats: ['png', 'jpeg', 'jpg'],
+export const upload =  multer({
+  storage: multer.diskStorage({}),
+  fileFilter: (req, file, cb) => {
+    const ext = path.extname(file.originalname)
+    if (ext !== '.jpg' && ext !== '.jpeg' && ext !== '.png') {
+      cb(null, false)
+      return
     }
-  }
+    cb(null, true)
+  },
 })
