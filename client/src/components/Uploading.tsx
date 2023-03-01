@@ -1,6 +1,15 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 
 function Uploading() {
+  useEffect(() => {
+    setTimeout(() => {
+      if (window.confirm('Try again?')) {
+        window.location.reload()
+      }
+    }, 5000);
+
+  }, [])
+
   return (
     <div>
       <h2>Uploading...</h2>

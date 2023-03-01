@@ -3,7 +3,7 @@ import DropBox from './components/DropBox';
 import Uploading from './components/Uploading';
 import './App.css'
 import Uploaded from './components/Uploaded';
-
+// 
 function App() {
   const [image, setImage] = useState<File | null>(null)
   const [imageLink, setImageLink] = useState({

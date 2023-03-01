@@ -4,8 +4,8 @@ import bgImage from '/assets/image.svg'
 import { serverOrigin } from '../main';
 
 type ImageLink = {
-    imgUrl: string;
-    publicId: string;
+  imgUrl: string;
+  publicId: string;
 }
 
 type DropBoxProps = {
@@ -38,7 +38,9 @@ function DropBox({ setImageUrl, setUploading }: DropBoxProps): JSX.Element {
     e.preventDefault()
     e.stopPropagation()
     if (e.type === 'dragenter' || e.type === 'dragover') setDragActive(true)
-    if (e.type === 'dragover') setDragActive(false)
+    if (e.type === 'dragover') {
+      setDragActive(false)
+    }
   }
 
   const handleDrop = (e: React.DragEvent<HTMLFormElement | HTMLDivElement>) => {
@@ -59,7 +61,7 @@ function DropBox({ setImageUrl, setUploading }: DropBoxProps): JSX.Element {
     setDragActive(false)
 
     try {
-      if (e.target.files && e.target.files[0].type.slice(0, 5) === "image") uploadImage(e.target.files[0])
+      if (e.target.files && e.target.files[0]) uploadImage(e.target.files[0])
     } catch (err) {
       console.log(err)
     }
